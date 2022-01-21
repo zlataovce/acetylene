@@ -1,5 +1,7 @@
 package me.kcra.acetylene.core.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface PrioritizedIdentifier extends Identifier, Comparable<PrioritizedIdentifier> {
     int priority();
 
@@ -9,9 +11,10 @@ public interface PrioritizedIdentifier extends Identifier, Comparable<Prioritize
     }
 
     static PrioritizedIdentifier of(String name, int priority) {
+        Preconditions.checkNotNull(name, "Name cannot be null");
         return (PrioritizedIdentifier) CACHE.computeIfAbsent(name + priority, key -> new PrioritizedIdentifier() {
             @Override
-            public String name() {
+            public @NotNull String name() {
                 return name;
             }
 

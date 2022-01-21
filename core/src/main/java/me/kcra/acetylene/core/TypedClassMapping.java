@@ -1,26 +1,28 @@
 package me.kcra.acetylene.core;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import me.kcra.acetylene.core.utils.Identifier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class TypedClassMapping implements Mappable {
-    @Getter
-    private final String original;
-    private final Map<Identifier, String> mappings;
-    private final Map<Identifier, FieldMapping> fields;
-    private final Map<Identifier, MethodMapping> methods;
-
+public record TypedClassMapping(String original, Map<Identifier, String> mappings,
+                                Map<Identifier, DescriptableMapping> fields,
+                                Map<Identifier, DescriptableMapping> methods) implements Mappable {
     @Override
-    public String mapped() {
+    public @NotNull String mapped() {
         return String.join(",", mappings.values());
     }
 
-    public String mapped(Identifier type) {
+    public @Nullable String mapped(Identifier type) {
         return mappings.get(type);
+    }
+
+    public @Nullable DescriptableMapping field(Identifier type) {
+        return fields.get(type);
+    }
+
+    public @Nullable DescriptableMapping method(Identifier type) {
+        return methods.get(type);
     }
 }
