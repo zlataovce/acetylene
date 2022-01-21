@@ -5,7 +5,9 @@ import me.kcra.acetylene.core.ancestry.ClassAncestorTree;
 import me.kcra.acetylene.srgutils.SrgUtilsMappingLoader;
 import me.kcra.acetylene.test.utils.TestUtils;
 import me.kcra.acetylene.test.utils.Timer;
-import org.junit.jupiter.api.BeforeEach;
+// import org.junit.jupiter.api.BeforeEach;
+import net.minecraftforge.srgutils.IMappingFile;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -21,10 +23,10 @@ public class ClassAncestorTreeTest {
             /*"1.10.1", */"1.10", "1.9.4"
     );
 
-    @BeforeEach
+    /*@BeforeEach
     public void cleanWorkspace() {
         TestUtils.cleanWorkspace();
-    }
+    }*/
 
     @Test
     public void classNameAncestor() {
@@ -43,14 +45,18 @@ public class ClassAncestorTreeTest {
             }
             System.out.println("Added mappings for " + ver + ".");
         }
+        System.out.println("Loaded " + files.size() + " files.");
         try (final Timer ignored = Timer.of("Ancestry compute")) {
             final TypedMappingFile refFile = files.get(0);
-            System.out.println(
+            System.out.println("Reference file has " + refFile.classes().size() + " classes mapped.");
+            System.out.println("First class in reference file: " + refFile.classes().get(0).toString());
+            Assertions.assertEquals(
+                    "net/minecraft/network/protocol/game/ClientboundDisconnectPacket",
                     Objects.requireNonNull(
                             ClassAncestorTree.of(
                                     refFile.mappedClass("net/minecraft/network/protocol/game/ClientboundDisconnectPacket"),
                                     files.subList(1, files.size())
-                            ).mapping(1)
+                            ).mapping(28) // 1.9.4
                     ).mapped()
             );
         }

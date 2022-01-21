@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import net.minecraftforge.srgutils.IMappingFile;
 
 import java.io.*;
 import java.net.URL;
@@ -47,10 +48,9 @@ public class TestUtils {
     }
 
     public File newFile(String fileName) {
-        final File file = Path.of(WORK_FOLDER.toString(), fileName).toFile();
         //noinspection ResultOfMethodCallIgnored
-        file.mkdirs();
-        return file;
+        WORK_FOLDER.toFile().mkdirs();
+        return Path.of(WORK_FOLDER.toString(), fileName).toFile();
     }
 
     @SneakyThrows
@@ -66,7 +66,7 @@ public class TestUtils {
             if (sha1 == null) {
                 System.out.println("Missing SHA1 for file " + fileName + ".");
             } else {
-                System.out.println("File " + fileName + " already exists.");
+                System.out.println("File " + fileName + " doesn't exist, downloading.");
             }
         }
         try (final InputStream inputStream = new URL(url).openStream()) {
@@ -151,25 +151,30 @@ public class TestUtils {
 
     @SneakyThrows
     public String getFileChecksum(MessageDigest digest, File file) {
-        final FileInputStream fis = new FileInputStream(file);
+        try (final FileInputStream fis = new FileInputStream(file)) {
+            final byte[] byteArray = new byte[1024];
+            int bytesCount;
 
-        final byte[] byteArray = new byte[1024];
-        int bytesCount;
-
-        while ((bytesCount = fis.read(byteArray)) != -1) {
-            digest.update(byteArray, 0, bytesCount);
+            while ((bytesCount = fis.read(byteArray)) != -1) {
+                digest.update(byteArray, 0, bytesCount);
+            }
         }
 
-        fis.close();
-
         final byte[] bytes = digest.digest();
-
-        var sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (final byte aByte : bytes) {
             sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
         }
-
         return sb.toString();
+    }
+
+    @SneakyThrows
+    public void reverseMappingFile(File file, IMappingFile.Format format) {
+        final IMappingFile iMappingFile = IMappingFile.load(file);
+        if (iMappingFile.getClasses().stream().anyMatch(e -> e.getOriginal().contains("/"))) {
+            // needs to be reversed
+            iMappingFile.reverse().write(file.toPath(), format, false);
+        }
     }
 }
 

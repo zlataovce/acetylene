@@ -25,6 +25,12 @@ public class SrgUtilsTypedLoaderContext extends TypedLoaderContext {
                         throw new RuntimeException(e);
                     }
                 })
+                .map(iMappingFile -> {
+                    if (iMappingFile.getClasses().stream().anyMatch(iClass -> iClass.getOriginal().contains("/"))) {
+                        return iMappingFile.reverse();
+                    }
+                    return iMappingFile;
+                })
                 .toList();
         mappingFiles.get(0).getClasses().forEach(iClass -> {
             final List<IMappingFile.IClass> otherClasses = mappingFiles.stream()
