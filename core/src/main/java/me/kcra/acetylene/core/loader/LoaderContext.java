@@ -4,7 +4,6 @@ import me.kcra.acetylene.core.ClassMapping;
 import me.kcra.acetylene.core.MappingFile;
 import me.kcra.acetylene.core.utils.Preconditions;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public abstract class LoaderContext {
         return this;
     }
 
-    public @Unmodifiable MappingFile build() {
+    public MappingFile build() {
         return new MappingFile(List.copyOf(mappings));
     }
 }

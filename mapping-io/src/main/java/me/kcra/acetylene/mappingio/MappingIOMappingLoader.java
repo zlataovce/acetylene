@@ -1,4 +1,4 @@
-package me.kcra.acetylene.srgutils;
+package me.kcra.acetylene.mappingio;
 
 import me.kcra.acetylene.core.loader.AbstractMappingLoader;
 import me.kcra.acetylene.core.loader.LoaderContext;
@@ -8,8 +8,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-public class SrgUtilsMappingLoader extends AbstractMappingLoader<SrgUtilsLoaderContext, SrgUtilsTypedLoaderContext> {
-    protected SrgUtilsMappingLoader(List<File> files) {
+public class MappingIOMappingLoader extends AbstractMappingLoader<MappingIOLoaderContext, MappingIOTypedLoaderContext> {
+    protected MappingIOMappingLoader(List<File> files) {
         super(files);
     }
 
@@ -18,16 +18,16 @@ public class SrgUtilsMappingLoader extends AbstractMappingLoader<SrgUtilsLoaderC
     }
 
     public static AbstractMappingLoader<? extends LoaderContext, ? extends TypedLoaderContext> of(List<File> files) {
-        return new SrgUtilsMappingLoader(files);
+        return new MappingIOMappingLoader(files);
     }
 
     @Override
-    protected SrgUtilsLoaderContext context() {
-        return new SrgUtilsLoaderContext();
+    protected MappingIOLoaderContext context() {
+        return new MappingIOLoaderContext();
     }
 
     @Override
-    protected SrgUtilsTypedLoaderContext typedContext() {
-        return new SrgUtilsTypedLoaderContext();
+    protected MappingIOTypedLoaderContext typedContext() {
+        return new MappingIOTypedLoaderContext();
     }
 }

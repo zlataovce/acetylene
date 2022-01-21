@@ -19,4 +19,16 @@ public class Preconditions {
         }
         return elem;
     }
+
+    public void checkArgument(boolean arg) {
+        if (!arg) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public void checkArgument(boolean arg, @Nullable Object msg) {
+        if (!arg) {
+            throw new IllegalArgumentException(String.valueOf(msg));
+        }
+    }
 }

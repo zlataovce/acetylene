@@ -14,9 +14,19 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven("https://repo.screamingsandals.org/public")
     }
 
     dependencies {
         compileOnly("org.jetbrains:annotations:23.0.0")
+    }
+
+    tasks.withType<Jar> {
+        archiveBaseName.set("${rootProject.name}-${project.name}")
+    }
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
     }
 }

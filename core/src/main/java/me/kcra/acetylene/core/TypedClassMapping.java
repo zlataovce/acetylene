@@ -1,28 +1,27 @@
 package me.kcra.acetylene.core;
 
-import me.kcra.acetylene.core.utils.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.List;
 
-public record TypedClassMapping(String original, Map<Identifier, String> mappings,
-                                Map<Identifier, DescriptableMapping> fields,
-                                Map<Identifier, DescriptableMapping> methods) implements Mappable {
+public record TypedClassMapping(String original, List<String> mappings,
+                                List<TypedDescriptableMapping> fields,
+                                List<TypedDescriptableMapping> methods) implements Mappable {
     @Override
     public @NotNull String mapped() {
-        return String.join(",", mappings.values());
+        return String.join(",", mappings);
     }
 
-    public @Nullable String mapped(Identifier type) {
-        return mappings.get(type);
+    public @Nullable String mapped(int index) {
+        return mappings.get(index);
     }
 
-    public @Nullable DescriptableMapping field(Identifier type) {
-        return fields.get(type);
+    public @Nullable TypedDescriptableMapping field(int index) {
+        return fields.get(index);
     }
 
-    public @Nullable DescriptableMapping method(Identifier type) {
-        return methods.get(type);
+    public @Nullable TypedDescriptableMapping method(int index) {
+        return methods.get(index);
     }
 }
