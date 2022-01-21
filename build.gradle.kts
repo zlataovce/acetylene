@@ -1,6 +1,6 @@
 plugins {
     id("io.freefair.lombok") version "6.3.0" apply(false)
-    java
+    id("java-library")
 }
 
 allprojects {
@@ -9,7 +9,7 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "java")
+    apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
 
     repositories {

@@ -1,4 +1,4 @@
 rootProject.name = "acetylene"
 
-include("core")
+include("core", "srgutils", "mapping-io")
 
