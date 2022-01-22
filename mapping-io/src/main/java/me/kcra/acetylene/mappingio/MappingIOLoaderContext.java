@@ -12,14 +12,23 @@ import net.fabricmc.mappingio.tree.MemoryMappingTree;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MappingIOLoaderContext extends LoaderContext {
     @Override
-    protected void loadFile0(File file) {
-        final MemoryMappingTree mappingTree = new MemoryMappingTree();
+    protected void loadFile0(Object file) {
+        MemoryMappingTree mappingTree = new MemoryMappingTree();
         try {
-            MappingReader.read(file.toPath(), mappingTree);
+            if (file instanceof File) {
+                MappingReader.read(((File) file).toPath(), mappingTree);
+            } else if (file instanceof Path) {
+                MappingReader.read((Path) file, mappingTree);
+            } else if (file instanceof MemoryMappingTree) {
+                mappingTree = (MemoryMappingTree) file;
+            } else {
+                throw new IllegalArgumentException("Unsupported file");
+            }
         } catch (IOException e) {
             throw new RuntimeException("Could not load file", e);
         }

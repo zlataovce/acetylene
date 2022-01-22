@@ -12,6 +12,7 @@ import net.fabricmc.mappingio.tree.MemoryMappingTree;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,14 +21,22 @@ import static me.kcra.acetylene.mappingio.MappingIOLoaderContext.getFirstNamespa
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MappingIOTypedLoaderContext extends TypedLoaderContext {
     @Override
-    protected void loadFiles0(List<File> files) {
+    protected void loadFiles0(List<Object> files) {
         final List<MemoryMappingTree> mappingFiles = files.stream()
                 .map(file -> {
-                    final MemoryMappingTree mappingTree = new MemoryMappingTree();
+                    MemoryMappingTree mappingTree = new MemoryMappingTree();
                     try {
-                        MappingReader.read(file.toPath(), mappingTree);
+                        if (file instanceof File) {
+                            MappingReader.read(((File) file).toPath(), mappingTree);
+                        } else if (file instanceof Path) {
+                            MappingReader.read((Path) file, mappingTree);
+                        } else if (file instanceof MemoryMappingTree) {
+                            mappingTree = (MemoryMappingTree) file;
+                        } else {
+                            throw new IllegalArgumentException("Unsupported file");
+                        }
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Could not load file", e);
                     }
                     return mappingTree;
                 })

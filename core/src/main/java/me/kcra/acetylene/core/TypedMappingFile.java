@@ -23,4 +23,8 @@ public record TypedMappingFile(List<TypedClassMapping> classes) {
     public @Nullable TypedClassMapping mappedClass(Collection<String> mapped) {
         return classes.stream().filter(e -> !Collections.disjoint(e.mappings(), mapped)).findFirst().orElse(null);
     }
+
+    public int size() {
+        return classes.size();
+    }
 }

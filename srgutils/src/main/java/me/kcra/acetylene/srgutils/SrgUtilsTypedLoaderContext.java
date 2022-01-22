@@ -10,26 +10,29 @@ import net.minecraftforge.srgutils.IMappingFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SrgUtilsTypedLoaderContext extends TypedLoaderContext {
     @Override
-    protected void loadFiles0(List<File> files) {
+    protected void loadFiles0(List<Object> files) {
         final List<IMappingFile> mappingFiles = files.stream()
                 .map(file -> {
                     try {
-                        return IMappingFile.load(file);
+                        if (file instanceof File) {
+                            return IMappingFile.load((File) file);
+                        } else if (file instanceof Path) {
+                            return IMappingFile.load(((Path) file).toFile());
+                        } else if (file instanceof IMappingFile) {
+                            return (IMappingFile) file;
+                        } else {
+                            throw new IllegalArgumentException("Unsupported file");
+                        }
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Could not load file", e);
                     }
-                })
-                .map(iMappingFile -> {
-                    if (iMappingFile.getClasses().stream().anyMatch(iClass -> iClass.getOriginal().contains("/"))) {
-                        return iMappingFile.reverse();
-                    }
-                    return iMappingFile;
                 })
                 .toList();
         mappingFiles.get(0).getClasses().forEach(iClass -> {

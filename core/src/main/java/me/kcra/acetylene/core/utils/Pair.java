@@ -28,7 +28,7 @@ public interface Pair<K, V> {
                 if (!(obj instanceof final Pair<?, ?> pair)) {
                     return false;
                 }
-                return key.equals(pair.key()) && value.equals(pair.value());
+                return Objects.equals(key, pair.key()) && Objects.equals(value, pair.value());
             }
 
             @Override

@@ -9,14 +9,23 @@ import net.minecraftforge.srgutils.IMappingFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SrgUtilsLoaderContext extends LoaderContext {
     @Override
-    protected void loadFile0(File file) {
+    protected void loadFile0(Object file) {
         IMappingFile mappingFile;
         try {
-            mappingFile = IMappingFile.load(file);
+            if (file instanceof File) {
+                mappingFile = IMappingFile.load((File) file);
+            } else if (file instanceof Path) {
+                mappingFile = IMappingFile.load(((Path) file).toFile());
+            } else if (file instanceof IMappingFile) {
+                mappingFile = (IMappingFile) file;
+            } else {
+                throw new IllegalArgumentException("Unsupported file");
+            }
         } catch (IOException e) {
             throw new RuntimeException("Could not load file", e);
         }

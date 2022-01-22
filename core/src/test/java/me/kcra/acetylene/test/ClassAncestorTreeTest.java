@@ -1,11 +1,12 @@
 package me.kcra.acetylene.test;
 
+import lombok.SneakyThrows;
+import me.kcra.acetylene.core.TypedClassMapping;
 import me.kcra.acetylene.core.TypedMappingFile;
 import me.kcra.acetylene.core.ancestry.ClassAncestorTree;
 import me.kcra.acetylene.srgutils.SrgUtilsMappingLoader;
 import me.kcra.acetylene.test.utils.TestUtils;
 import me.kcra.acetylene.test.utils.Timer;
-// import org.junit.jupiter.api.BeforeEach;
 import net.minecraftforge.srgutils.IMappingFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ClassAncestorTreeTest {
     private static final List<String> VERSIONS = List.of(
@@ -29,18 +29,24 @@ public class ClassAncestorTreeTest {
     }*/
 
     @Test
+    @SneakyThrows
     public void classNameAncestor() {
         final List<TypedMappingFile> files = new ArrayList<>();
         for (String ver : VERSIONS) {
-            File mojangMapping, intermediaryMapping, seargeMapping;
+            File mojangMapping, intermediaryMapping, seargeMapping, spigotMapping;
             try (final Timer ignored = Timer.of("Mapping download")) {
                 mojangMapping = TestUtils.minecraftResource(ver, "server_mappings");
                 intermediaryMapping = TestUtils.intermediaryMapping(ver);
                 seargeMapping = TestUtils.seargeMapping(ver);
+                spigotMapping = TestUtils.spigotMapping(ver);
             }
             try (final Timer ignored = Timer.of("Mapping load")) {
+                IMappingFile mojangFile = null;
+                if (mojangMapping != null) {
+                    mojangFile = IMappingFile.load(mojangMapping).reverse();
+                }
                 files.add(
-                        SrgUtilsMappingLoader.of(mojangMapping, intermediaryMapping, seargeMapping).loadTyped()
+                        SrgUtilsMappingLoader.of(mojangFile, intermediaryMapping, seargeMapping, spigotMapping).loadTyped()
                 );
             }
             System.out.println("Added mappings for " + ver + ".");
@@ -48,17 +54,15 @@ public class ClassAncestorTreeTest {
         System.out.println("Loaded " + files.size() + " files.");
         try (final Timer ignored = Timer.of("Ancestry compute")) {
             final TypedMappingFile refFile = files.get(0);
-            System.out.println("Reference file has " + refFile.classes().size() + " classes mapped.");
-            System.out.println("First class in reference file: " + refFile.classes().get(0).toString());
-            Assertions.assertEquals(
-                    "net/minecraft/network/protocol/game/ClientboundDisconnectPacket",
-                    Objects.requireNonNull(
-                            ClassAncestorTree.of(
-                                    refFile.mappedClass("net/minecraft/network/protocol/game/ClientboundDisconnectPacket"),
-                                    files.subList(1, files.size())
-                            ).mapping(28) // 1.9.4
-                    ).mapped()
-            );
+            System.out.println("Reference file has " + refFile.size() + " classes mapped.");
+            final TypedClassMapping refClass = refFile.mappedClass("net/minecraft/network/protocol/game/ClientboundDisconnectPacket");
+            Assertions.assertNotNull(refClass);
+            System.out.println("Reference class: " + refClass);
+            final ClassAncestorTree ancestorTree = ClassAncestorTree.of(refClass, files.subList(1, files.size()));
+            final TypedClassMapping result = ancestorTree.mapping(27); // 1.9.4
+            Assertions.assertNotNull(result);
+            System.out.println("Result: " + result);
+            System.out.println("Traced files: " + ancestorTree.size()); // will always be VERSIONS.size() - 1
         }
     }
 }

@@ -150,6 +150,26 @@ public class TestUtils {
     }
 
     @SneakyThrows
+    public File spigotMapping(String ver) {
+        JsonNode versionManifest;
+        try {
+            versionManifest = MAPPER.readTree(new URL("https://hub.spigotmc.org/versions/" + ver + ".json"));
+        } catch (FileNotFoundException ignored) {
+            return null;
+        }
+        final String buildDataRev = versionManifest.path("refs").path("BuildData").asText();
+        final JsonNode buildDataManifest = MAPPER.readTree(new URL("https://hub.spigotmc.org/stash/projects/SPIGOT/repos/builddata/raw/info.json?at=" + buildDataRev));
+        if (buildDataManifest.has("classMappings")) {
+            return getFromURL(
+                    "https://hub.spigotmc.org/stash/projects/SPIGOT/repos/builddata/raw/mappings/" + buildDataManifest.path("classMappings").asText() + "?at=" + buildDataRev,
+                    "spigot_" + ver + ".csrg",
+                    null
+            );
+        }
+        return null;
+    }
+
+    @SneakyThrows
     public String getFileChecksum(MessageDigest digest, File file) {
         try (final FileInputStream fis = new FileInputStream(file)) {
             final byte[] byteArray = new byte[1024];
