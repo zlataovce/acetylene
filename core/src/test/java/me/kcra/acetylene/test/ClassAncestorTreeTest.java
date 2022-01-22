@@ -2,8 +2,10 @@ package me.kcra.acetylene.test;
 
 import lombok.SneakyThrows;
 import me.kcra.acetylene.core.TypedClassMapping;
+import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.TypedMappingFile;
 import me.kcra.acetylene.core.ancestry.ClassAncestorTree;
+import me.kcra.acetylene.core.ancestry.DescriptableAncestorTree;
 import me.kcra.acetylene.srgutils.SrgUtilsMappingLoader;
 import me.kcra.acetylene.test.utils.TestUtils;
 import me.kcra.acetylene.test.utils.Timer;
@@ -53,16 +55,19 @@ public class ClassAncestorTreeTest {
         }
         System.out.println("Loaded " + files.size() + " files.");
         try (final Timer ignored = Timer.of("Ancestry compute")) {
-            final TypedMappingFile refFile = files.get(0);
-            System.out.println("Reference file has " + refFile.size() + " classes mapped.");
-            final TypedClassMapping refClass = refFile.mappedClass("net/minecraft/network/protocol/game/ClientboundDisconnectPacket");
-            Assertions.assertNotNull(refClass);
-            System.out.println("Reference class: " + refClass);
-            final ClassAncestorTree ancestorTree = ClassAncestorTree.of(refClass, files.subList(1, files.size()));
-            final TypedClassMapping result = ancestorTree.mapping(27); // 1.9.4
+            final ClassAncestorTree ancestorTree = ClassAncestorTree.of("net/minecraft/network/protocol/game/ClientboundDisconnectPacket", files);
+            System.out.println("Classes mapped: " + ancestorTree.size());
+            final TypedClassMapping result = ancestorTree.mapping(28); // 1.9.4
             Assertions.assertNotNull(result);
             System.out.println("Result: " + result);
-            System.out.println("Traced files: " + ancestorTree.size()); // will always be VERSIONS.size() - 1
+            Assertions.assertEquals(VERSIONS.size(), ancestorTree.size());
+
+            final DescriptableAncestorTree ancestorTree1 = ancestorTree.fieldAncestors("reason");
+            System.out.println("Fields mapped: " + ancestorTree1.size());
+            final TypedDescriptableMapping result1 = ancestorTree1.mapping(28); // 1.9.4
+            Assertions.assertNotNull(result1);
+            System.out.println("Result: " + result1);
+            Assertions.assertEquals(VERSIONS.size(), ancestorTree1.size());
         }
     }
 }
