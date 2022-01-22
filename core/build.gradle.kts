@@ -12,3 +12,8 @@ tasks.withType<Test> {
     minHeapSize = "128M"
     maxHeapSize = "1024M"
 }
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
