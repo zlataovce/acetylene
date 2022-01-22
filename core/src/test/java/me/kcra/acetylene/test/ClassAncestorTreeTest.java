@@ -68,6 +68,14 @@ public class ClassAncestorTreeTest {
             Assertions.assertNotNull(result1);
             System.out.println("Result: " + result1);
             Assertions.assertEquals(VERSIONS.size(), ancestorTree1.size());
+
+            final ClassAncestorTree ancestorTree2 = ClassAncestorTree.of("PacketPlayOutBed", files);
+            System.out.println("Classes mapped: " + ancestorTree2.size());
+            System.out.println("Offset: " + ancestorTree2.offset());
+            final TypedClassMapping result2 = ancestorTree2.mapping(28); // 1.9.4
+            Assertions.assertNotNull(result2);
+            System.out.println("Result: " + result2);
+            Assertions.assertEquals(11, ancestorTree2.size());
         }
     }
 }

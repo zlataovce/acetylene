@@ -29,7 +29,7 @@ public record ClassAncestorTree(List<TypedClassMapping> classes, int offset) {
         final List<TypedClassMapping> mappings = new ArrayList<>();
         mappings.add(refClass);
         final AtomicReference<List<String>> currentMappings = new AtomicReference<>(refClass.mappings());
-        for (TypedMappingFile file : files.stream().skip(1).toList()) {
+        for (TypedMappingFile file : files.subList(i + 1, files.size())) {
             final TypedClassMapping result = file.classes().stream()
                     .filter(e -> !Collections.disjoint(e.mappings(), currentMappings.get()))
                     .findFirst()
