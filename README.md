@@ -9,7 +9,8 @@ for (...) {
 }
 final ClassAncestorTree classTree = ClassAncestorTree.of("mapped/class/name", files);
 final DescriptableAncestorTree fieldTree = classTree.fieldAncestors("mappedField");
-// index is based on the files list
+// indexes are deduced from the ordering of the supplied list
+// the supplied list should be sorted from the newest version to the oldest
 System.out.println(classTree.mapping(1));
 System.out.println(fieldTree.mapping(1));
 ```
