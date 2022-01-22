@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import me.kcra.acetylene.core.TypedClassMapping;
 import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.loader.TypedLoaderContext;
+import me.kcra.acetylene.core.utils.Identifier;
 import me.kcra.acetylene.core.utils.Pair;
 import net.fabricmc.mappingio.MappingReader;
 import net.fabricmc.mappingio.tree.MappingTree;
@@ -22,8 +23,9 @@ import static me.kcra.acetylene.mappingio.MappingIOLoaderContext.getFirstNamespa
 public class MappingIOTypedLoaderContext extends TypedLoaderContext {
     @Override
     protected void loadFiles0(List<Object> files) {
-        final List<MemoryMappingTree> mappingFiles = files.stream()
+        final List<Pair<Identifier, MemoryMappingTree>> mappingFiles = files.stream()
                 .map(file -> {
+                    Identifier id = NULL;
                     MemoryMappingTree mappingTree = new MemoryMappingTree();
                     try {
                         if (file instanceof File) {
@@ -32,39 +34,59 @@ public class MappingIOTypedLoaderContext extends TypedLoaderContext {
                             MappingReader.read((Path) file, mappingTree);
                         } else if (file instanceof MemoryMappingTree) {
                             mappingTree = (MemoryMappingTree) file;
+                        } else if (file instanceof final Pair<?, ?> pair) {
+                            if (pair.key() instanceof Identifier) {
+                                id = (Identifier) pair.key();
+                                final Object value = pair.value();
+                                if (value == null) {
+                                    return null;
+                                }
+                                if (value instanceof File) {
+                                    MappingReader.read(((File) value).toPath(), mappingTree);
+                                } else if (value instanceof Path) {
+                                    MappingReader.read(((Path) value), mappingTree);
+                                } else if (value instanceof MemoryMappingTree) {
+                                    mappingTree = (MemoryMappingTree) value;
+                                } else {
+                                    throw new IllegalArgumentException("Unsupported pair value");
+                                }
+                            } else {
+                                throw new IllegalArgumentException("Unsupported pair key");
+                            }
                         } else {
                             throw new IllegalArgumentException("Unsupported file");
                         }
                     } catch (IOException e) {
                         throw new RuntimeException("Could not load file", e);
                     }
-                    return mappingTree;
+                    return Pair.of(id, mappingTree);
                 })
+                .filter(Objects::nonNull)
                 .toList();
-        for (MappingTree.ClassMapping classMapping : mappingFiles.get(0).getClasses()) {
-            final List<MappingTree.ClassMapping> otherClasses = mappingFiles.stream()
-                    .map(mappingTree -> (MappingTree.ClassMapping) mappingTree.getClass(classMapping.getSrcName()))
-                    .filter(Objects::nonNull)
+        for (MappingTree.ClassMapping classMapping : mappingFiles.get(0).value().getClasses()) {
+            final List<Pair<Identifier, MappingTree.ClassMapping>> otherClasses = mappingFiles.stream()
+                    .map(pair -> Pair.of(pair.key(), (MappingTree.ClassMapping) pair.value().getClass(classMapping.getSrcName())))
+                    .filter(TypedLoaderContext::nonNullPairValue)
                     .toList();
             addClass(
                     new TypedClassMapping(
                             classMapping.getSrcName(),
                             otherClasses.stream()
-                                    .map(classMapping1 -> classMapping1.getDstName(getFirstNamespace(classMapping1)))
+                                    .map(pair -> Pair.of(pair.key(), pair.value().getDstName(getFirstNamespace(pair.value()))))
                                     .toList(),
                             classMapping.getFields().stream()
                                     .map(fieldMapping -> {
-                                        final List<MappingTree.FieldMapping> otherFields = otherClasses.stream()
-                                                .map(classMapping1 -> classMapping1.getField(fieldMapping.getSrcName(), fieldMapping.getSrcDesc()))
-                                                .filter(Objects::nonNull)
+                                        final List<Pair<Identifier, MappingTree.FieldMapping>> otherFields = otherClasses.stream()
+                                                .map(pair -> Pair.of(pair.key(), pair.value().getField(fieldMapping.getSrcName(), fieldMapping.getSrcDesc())))
+                                                .filter(TypedLoaderContext::nonNullPairValue)
                                                 .toList();
                                         return new TypedDescriptableMapping(
                                                 fieldMapping.getSrcName(),
                                                 fieldMapping.getSrcDesc(),
                                                 otherFields.stream()
-                                                        .map(fieldMapping1 -> {
-                                                            final int firstNamespace = getFirstNamespace(fieldMapping1);
-                                                            return Pair.of(fieldMapping1.getDstName(firstNamespace), fieldMapping1.getDstDesc(firstNamespace));
+                                                        .map(pair -> {
+                                                            final int firstNamespace = getFirstNamespace(pair.value());
+                                                            return Pair.of(pair.key(), Pair.of(pair.value().getDstName(firstNamespace), pair.value().getDstDesc(firstNamespace)));
                                                         })
                                                         .toList()
                                         );
@@ -72,17 +94,17 @@ public class MappingIOTypedLoaderContext extends TypedLoaderContext {
                                     .toList(),
                             classMapping.getMethods().stream()
                                     .map(methodMapping -> {
-                                        final List<MappingTree.MethodMapping> otherMethods = otherClasses.stream()
-                                                .map(methodMapping1 -> methodMapping1.getMethod(methodMapping.getSrcName(), methodMapping.getSrcDesc()))
-                                                .filter(Objects::nonNull)
+                                        final List<Pair<Identifier, MappingTree.MethodMapping>> otherMethods = otherClasses.stream()
+                                                .map(pair -> Pair.of(pair.key(), pair.value().getMethod(methodMapping.getSrcName(), methodMapping.getSrcDesc())))
+                                                .filter(TypedLoaderContext::nonNullPairValue)
                                                 .toList();
                                         return new TypedDescriptableMapping(
                                                 methodMapping.getSrcName(),
                                                 methodMapping.getSrcDesc(),
                                                 otherMethods.stream()
-                                                        .map(methodMapping1 -> {
-                                                            final int firstNamespace = getFirstNamespace(methodMapping1);
-                                                            return Pair.of(methodMapping1.getDstName(firstNamespace), methodMapping1.getDstDesc(firstNamespace));
+                                                        .map(pair -> {
+                                                            final int firstNamespace = getFirstNamespace(pair.value());
+                                                            return Pair.of(pair.key(), Pair.of(pair.value().getDstName(firstNamespace), pair.value().getDstDesc(firstNamespace)));
                                                         })
                                                         .toList()
                                         );

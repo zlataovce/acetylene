@@ -6,7 +6,9 @@ import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.TypedMappingFile;
 import me.kcra.acetylene.core.ancestry.ClassAncestorTree;
 import me.kcra.acetylene.core.ancestry.DescriptableAncestorTree;
+import me.kcra.acetylene.core.utils.Pair;
 import me.kcra.acetylene.srgutils.SrgUtilsMappingLoader;
+import me.kcra.acetylene.test.utils.MappingType;
 import me.kcra.acetylene.test.utils.TestUtils;
 import me.kcra.acetylene.test.utils.Timer;
 import net.minecraftforge.srgutils.IMappingFile;
@@ -48,12 +50,18 @@ public class ClassAncestorTreeTest {
                     mojangFile = IMappingFile.load(mojangMapping).reverse();
                 }
                 files.add(
-                        SrgUtilsMappingLoader.of(mojangFile, intermediaryMapping, seargeMapping, spigotMapping).loadTyped()
+                        SrgUtilsMappingLoader.of(
+                                Pair.of(MappingType.MOJANG, mojangFile),
+                                Pair.of(MappingType.INTERMEDIARY, intermediaryMapping),
+                                Pair.of(MappingType.SEARGE, seargeMapping),
+                                Pair.of(MappingType.SPIGOT, spigotMapping)
+                        ).loadTyped()
                 );
             }
             System.out.println("Added mappings for " + ver + ".");
         }
         System.out.println("Loaded " + files.size() + " files.");
+        System.out.println("First class: " + files.get(0).classes().get(0));
         try (final Timer ignored = Timer.of("Ancestry compute")) {
             final ClassAncestorTree ancestorTree = ClassAncestorTree.of("net/minecraft/network/protocol/game/ClientboundDisconnectPacket", files);
             System.out.println("Classes mapped: " + ancestorTree.size());

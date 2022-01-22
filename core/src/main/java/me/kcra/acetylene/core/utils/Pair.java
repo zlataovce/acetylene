@@ -1,9 +1,13 @@
 package me.kcra.acetylene.core.utils;
 
+import org.jetbrains.annotations.UnknownNullability;
+
 import java.util.Objects;
 
 public interface Pair<K, V> {
+    @UnknownNullability
     K key();
+    @UnknownNullability
     V value();
 
     static <L, R> Pair<L, R> of(L key, R value) {

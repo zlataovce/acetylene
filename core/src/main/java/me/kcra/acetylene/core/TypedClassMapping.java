@@ -1,5 +1,6 @@
 package me.kcra.acetylene.core;
 
+import me.kcra.acetylene.core.utils.Identifier;
 import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,16 +9,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public record TypedClassMapping(String original, List<String> mappings,
+public record TypedClassMapping(String original, List<Pair<Identifier, String>> mappings,
                                 List<TypedDescriptableMapping> fields,
                                 List<TypedDescriptableMapping> methods) implements Mappable {
     @Override
     public @NotNull String mapped() {
-        return String.join(",", mappings);
+        return String.join(",", mappings.stream().map(Pair::value).toList());
     }
 
-    public @Nullable String mapped(int index) {
-        return mappings.get(index);
+    public @Nullable String mapped(Identifier type) {
+        return mappings.stream().filter(e -> e.key().equals(type)).findFirst().map(Pair::value).orElse(null);
     }
 
     public @Nullable TypedDescriptableMapping field(String original) {
@@ -25,7 +26,7 @@ public record TypedClassMapping(String original, List<String> mappings,
     }
 
     public @Nullable TypedDescriptableMapping mappedField(String mapped) {
-        return fields.stream().filter(e -> e.mappings().stream().anyMatch(p -> p.key().equals(mapped))).findFirst().orElse(null);
+        return fields.stream().filter(e -> e.mappings().stream().anyMatch(p -> p.value().key().equals(mapped))).findFirst().orElse(null);
     }
 
     public @Nullable TypedDescriptableMapping mappedField(String... mapped) {
@@ -49,6 +50,6 @@ public record TypedClassMapping(String original, List<String> mappings,
     }
 
     public @Nullable TypedDescriptableMapping mappedMethod(List<Pair<String, String>> mapped) {
-        return methods.stream().filter(e -> !Collections.disjoint(e.mappings(), mapped)).findFirst().orElse(null);
+        return methods.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), mapped)).findFirst().orElse(null);
     }
 }

@@ -11,7 +11,31 @@ public interface Identifier {
     @NotNull
     String name();
 
-    static Identifier of(String name) {
-        return CACHE.computeIfAbsent(name, key -> () -> name);
+    static Identifier of(@NotNull String name) {
+        Preconditions.checkNotNull(name, "Name must not be null");
+        return CACHE.computeIfAbsent(name, key -> new Identifier() {
+            @Override
+            public @NotNull String name() {
+                return name;
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+
+            @Override
+            public int hashCode() {
+                return name.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof final Identifier id)) {
+                    return false;
+                }
+                return name.equals(id.name());
+            }
+        });
     }
 }

@@ -18,24 +18,24 @@ public record DescriptableAncestorTree(List<TypedDescriptableMapping> descriptab
     public static DescriptableAncestorTree of(TypedDescriptableMapping refDescr, int offset, boolean ignoreDescriptors, List<TypedDescriptableMapping[]> descs) {
         final List<TypedDescriptableMapping> mappings = new ArrayList<>();
         mappings.add(refDescr);
-        final AtomicReference<List<Pair<String, String>>> currentMappings = new AtomicReference<>(refDescr.mappings());
+        final AtomicReference<List<Pair<String, String>>> currentMappings = new AtomicReference<>(refDescr.mappings().stream().map(Pair::value).toList());
         for (TypedDescriptableMapping[] mappings1 : descs) {
             final TypedDescriptableMapping result = Arrays.stream(mappings1)
                     .filter(e -> {
                         if (ignoreDescriptors) {
                             return !Collections.disjoint(
-                                    e.mappings().stream().map(Pair::key).toList(),
+                                    e.mappings().stream().map(Pair::value).map(Pair::key).toList(),
                                     currentMappings.get().stream().map(Pair::key).toList()
                             );
                         }
-                        return !Collections.disjoint(e.mappings(), currentMappings.get());
+                        return !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), currentMappings.get());
                     })
                     .findFirst()
                     .orElse(null);
             if (result == null) {
                 return new DescriptableAncestorTree(Collections.unmodifiableList(mappings), offset);
             }
-            currentMappings.set(result.mappings());
+            currentMappings.set(result.mappings().stream().map(Pair::value).toList());
             mappings.add(result);
         }
         return new DescriptableAncestorTree(Collections.unmodifiableList(mappings), offset);

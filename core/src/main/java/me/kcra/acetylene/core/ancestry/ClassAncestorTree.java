@@ -3,6 +3,7 @@ package me.kcra.acetylene.core.ancestry;
 import me.kcra.acetylene.core.TypedClassMapping;
 import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.TypedMappingFile;
+import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -28,16 +29,16 @@ public record ClassAncestorTree(List<TypedClassMapping> classes, int offset) {
         }
         final List<TypedClassMapping> mappings = new ArrayList<>();
         mappings.add(refClass);
-        final AtomicReference<List<String>> currentMappings = new AtomicReference<>(refClass.mappings());
+        final AtomicReference<List<String>> currentMappings = new AtomicReference<>(refClass.mappings().stream().map(Pair::value).toList());
         for (TypedMappingFile file : files.subList(i + 1, files.size())) {
             final TypedClassMapping result = file.classes().stream()
-                    .filter(e -> !Collections.disjoint(e.mappings(), currentMappings.get()))
+                    .filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), currentMappings.get()))
                     .findFirst()
                     .orElse(null);
             if (result == null) {
                 return new ClassAncestorTree(Collections.unmodifiableList(mappings), i);
             }
-            currentMappings.set(result.mappings());
+            currentMappings.set(result.mappings().stream().map(Pair::value).toList());
             mappings.add(result);
         }
         return new ClassAncestorTree(Collections.unmodifiableList(mappings), i);

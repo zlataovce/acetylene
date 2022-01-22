@@ -1,5 +1,6 @@
 package me.kcra.acetylene.core;
 
+import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -13,7 +14,7 @@ public record TypedMappingFile(List<TypedClassMapping> classes) {
     }
 
     public @Nullable TypedClassMapping mappedClass(String mapped) {
-        return classes.stream().filter(e -> e.mappings().contains(mapped)).findFirst().orElse(null);
+        return classes.stream().filter(e -> e.mappings().stream().anyMatch(p -> p.value().equals(mapped))).findFirst().orElse(null);
     }
 
     public @Nullable TypedClassMapping mappedClass(String... mapped) {
@@ -21,7 +22,7 @@ public record TypedMappingFile(List<TypedClassMapping> classes) {
     }
 
     public @Nullable TypedClassMapping mappedClass(Collection<String> mapped) {
-        return classes.stream().filter(e -> !Collections.disjoint(e.mappings(), mapped)).findFirst().orElse(null);
+        return classes.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), mapped)).findFirst().orElse(null);
     }
 
     public int size() {
