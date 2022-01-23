@@ -5,12 +5,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A generic immutable identifier.
+ */
 public interface Identifier {
+    /**
+     * A cache for {@link Identifier} instances based on their names.
+     */
     Map<String, Identifier> CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * Gets the identifying name of this {@link Identifier}.
+     *
+     * @return the identifying name
+     */
     @NotNull
     String name();
 
+    /**
+     * Retrieves an {@link Identifier} from the cache, creating it, if missing.
+     *
+     * @param name the identifying name
+     * @return the identifier
+     */
     static Identifier of(@NotNull String name) {
         Preconditions.checkNotNull(name, "Name must not be null");
         return CACHE.computeIfAbsent(name, key -> new Identifier() {

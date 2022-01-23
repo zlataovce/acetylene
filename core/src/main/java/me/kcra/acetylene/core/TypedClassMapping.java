@@ -4,14 +4,24 @@ import me.kcra.acetylene.core.utils.Identifier;
 import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public record TypedClassMapping(String original, List<Pair<Identifier, String>> mappings,
-                                List<TypedDescriptableMapping> fields,
-                                List<TypedDescriptableMapping> methods) implements Mappable {
+/**
+ * Class representing a class mapping consisting of several (non-obfuscated) mappings with the same original (obfuscated) mapping.
+ * <p>
+ * This is useful for creating {@link me.kcra.acetylene.core.ancestry.ClassAncestorTree}s from several inconsistent mapping types.
+ */
+public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identifier, String>> mappings,
+                                @Unmodifiable List<TypedDescriptableMapping> fields,
+                                @Unmodifiable List<TypedDescriptableMapping> methods) implements Mappable {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull String mapped() {
         return String.join(",", mappings.stream().map(Pair::value).toList());
@@ -33,7 +43,7 @@ public record TypedClassMapping(String original, List<Pair<Identifier, String>> 
         return mappedField(Arrays.asList(mapped));
     }
 
-    public @Nullable TypedDescriptableMapping mappedField(List<String> mapped) {
+    public @Nullable TypedDescriptableMapping mappedField(Collection<String> mapped) {
         return fields.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::key).toList(), mapped)).findFirst().orElse(null);
     }
 
@@ -49,7 +59,7 @@ public record TypedClassMapping(String original, List<Pair<Identifier, String>> 
         return methods.stream().filter(e -> e.mappings().contains(mapped)).findFirst().orElse(null);
     }
 
-    public @Nullable TypedDescriptableMapping mappedMethod(List<Pair<String, String>> mapped) {
+    public @Nullable TypedDescriptableMapping mappedMethod(Collection<Pair<String, String>> mapped) {
         return methods.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), mapped)).findFirst().orElse(null);
     }
 }

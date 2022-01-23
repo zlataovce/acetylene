@@ -5,11 +5,12 @@ import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.TypedMappingFile;
 import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public record ClassAncestorTree(List<TypedClassMapping> classes, int offset) {
+public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, int offset) {
     public static ClassAncestorTree of(String refClass, TypedMappingFile... files) {
         return of(refClass, Arrays.asList(files));
     }
@@ -45,10 +46,18 @@ public record ClassAncestorTree(List<TypedClassMapping> classes, int offset) {
     }
 
     public @Nullable TypedClassMapping mapping(int index) {
-        if ((index - offset) >= size() || (index - offset) < 0) {
+        if (!has(index)) {
             return null;
         }
         return classes.get(index - offset);
+    }
+
+    public int size() {
+        return classes.size();
+    }
+
+    public boolean has(int index) {
+        return (index - offset) < size() && (index - offset) >= 0;
     }
 
     public DescriptableAncestorTree fieldAncestors(String refFieldS) {
@@ -81,9 +90,5 @@ public record ClassAncestorTree(List<TypedClassMapping> classes, int offset) {
             throw new IllegalArgumentException("Reference method not found");
         }
         return DescriptableAncestorTree.of(refMethod, offset + i, false, classes.stream().skip(i + 1).map(tcm -> tcm.fields().toArray(TypedDescriptableMapping[]::new)).toList());
-    }
-
-    public int size() {
-        return classes.size();
     }
 }

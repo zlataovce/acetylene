@@ -3,6 +3,7 @@ package me.kcra.acetylene.core.ancestry;
 import me.kcra.acetylene.core.TypedDescriptableMapping;
 import me.kcra.acetylene.core.utils.Pair;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public record DescriptableAncestorTree(List<TypedDescriptableMapping> descriptables, int offset) {
+public record DescriptableAncestorTree(@Unmodifiable List<TypedDescriptableMapping> descriptables, int offset) {
     public static DescriptableAncestorTree of(TypedDescriptableMapping refDescr, int offset, boolean ignoreDescriptors, TypedDescriptableMapping[]... descs) {
         return of(refDescr, offset, ignoreDescriptors, Arrays.asList(descs));
     }
@@ -42,7 +43,7 @@ public record DescriptableAncestorTree(List<TypedDescriptableMapping> descriptab
     }
 
     public @Nullable TypedDescriptableMapping mapping(int index) {
-        if ((index - offset) >= size() || (index - offset) < 0) {
+        if (!has(index)) {
             return null;
         }
         return descriptables.get(index - offset);
@@ -50,5 +51,9 @@ public record DescriptableAncestorTree(List<TypedDescriptableMapping> descriptab
 
     public int size() {
         return descriptables.size();
+    }
+
+    public boolean has(int index) {
+        return (index - offset) < size() && (index - offset) >= 0;
     }
 }

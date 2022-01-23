@@ -1,11 +1,12 @@
 package me.kcra.acetylene.core;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
-public record ClassMapping(String original, String mapped, List<DescriptableMapping> fields,
-                           List<DescriptableMapping> methods) implements Mappable {
+public record ClassMapping(String original, String mapped, @Unmodifiable List<DescriptableMapping> fields,
+                           @Unmodifiable List<DescriptableMapping> methods) implements Mappable {
     public @Nullable DescriptableMapping field(String original) {
         return fields.stream().filter(e -> e.original().equals(original)).findFirst().orElse(null);
     }

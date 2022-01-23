@@ -4,12 +4,39 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
 
+/**
+ * A data holder holding two items, a key and a value.
+ * <p>
+ * {@link Pair} instances are immutable, their keys and values won't change (the state of the keys and values might).
+ *
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public interface Pair<K, V> {
+    /**
+     * Retrieves the key of this {@link Pair}.
+     *
+     * @return the key
+     */
     @UnknownNullability
     K key();
+    /**
+     * Retrieves the value of this {@link Pair}.
+     *
+     * @return the value
+     */
     @UnknownNullability
     V value();
 
+    /**
+     * Creates a new {@link Pair} with a key and a value.
+     *
+     * @param key the key
+     * @param value the value
+     * @param <L> the key type
+     * @param <R> the value type
+     * @return the new pair
+     */
     static <L, R> Pair<L, R> of(L key, R value) {
         return new Pair<>() {
             @Override
