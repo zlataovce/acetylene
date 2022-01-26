@@ -84,6 +84,13 @@ public class ClassAncestorTreeTest {
             Assertions.assertNotNull(result2);
             System.out.println("Result: " + result2);
             Assertions.assertEquals(11, ancestorTree2.size());
+
+            // testing old field lookup
+            final ClassAncestorTree ancestorTree3 = ClassAncestorTree.of("net/minecraft/network/protocol/game/ClientboundAddMobPacket", files);
+            System.out.println("Classes mapped: " + ancestorTree3.size());
+            final DescriptableAncestorTree result3 = ancestorTree3.fieldAncestors("field_149043_l"); // data watcher
+            System.out.println("Fields mapped: " + result3.size() + ", offset: " + result3.offset());
+            System.out.println("Result: " + result3);
         }
     }
 }

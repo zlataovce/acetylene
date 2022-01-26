@@ -89,6 +89,6 @@ public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, i
         if (refMethod == null) {
             throw new IllegalArgumentException("Reference method not found");
         }
-        return DescriptableAncestorTree.of(refMethod, offset + i, false, classes.stream().skip(i + 1).map(tcm -> tcm.fields().toArray(TypedDescriptableMapping[]::new)).toList());
+        return DescriptableAncestorTree.of(refMethod, offset + i, false, classes.stream().skip(i + 1).map(tcm -> tcm.methods().toArray(TypedDescriptableMapping[]::new)).toList());
     }
 }
