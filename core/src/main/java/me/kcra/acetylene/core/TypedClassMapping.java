@@ -44,7 +44,7 @@ public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identif
     }
 
     public @Nullable TypedDescriptableMapping mappedField(Collection<String> mapped) {
-        return fields.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::key).toList(), mapped)).findFirst().orElse(null);
+        return fields.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).map(Pair::key).toList(), mapped)).findFirst().orElse(null);
     }
 
     public @Nullable TypedDescriptableMapping method(String original, String descriptor) {
