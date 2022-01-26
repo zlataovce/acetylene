@@ -12,10 +12,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, int offset) {
     public static ClassAncestorTree of(String refClass, TypedMappingFile... files) {
-        return of(refClass, Arrays.asList(files));
+        return of(Arrays.asList(files), List.of(refClass));
     }
 
-    public static ClassAncestorTree of(String refClassS, List<TypedMappingFile> files) {
+    public static ClassAncestorTree of(String refClass, List<TypedMappingFile> files) {
+        return of(files, List.of(refClass));
+    }
+
+    public static ClassAncestorTree of(List<TypedMappingFile> files, List<String> refClassS) {
         int i = 0;
         TypedClassMapping refClass = null;
         for (TypedMappingFile refFile : files) {
@@ -60,7 +64,7 @@ public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, i
         return (index - offset) < size() && (index - offset) >= 0;
     }
 
-    public DescriptableAncestorTree fieldAncestors(String refFieldS) {
+    public DescriptableAncestorTree fieldAncestors(String... refFieldS) {
         int i = 0;
         TypedDescriptableMapping refField = null;
         for (TypedClassMapping refClass : classes) {
@@ -76,11 +80,27 @@ public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, i
         return DescriptableAncestorTree.of(refField, offset + i, true, classes.stream().skip(i + 1).map(tcm -> tcm.fields().toArray(TypedDescriptableMapping[]::new)).toList());
     }
 
-    public DescriptableAncestorTree methodAncestors(String refMethodS, String refDescriptor) {
+    public DescriptableAncestorTree methodAncestors(String refMethodS, String refDescriptorS) {
         int i = 0;
         TypedDescriptableMapping refMethod = null;
         for (TypedClassMapping refClass : classes) {
-            refMethod = refClass.mappedMethod(refMethodS, refDescriptor);
+            refMethod = refClass.mappedMethod(refMethodS, refDescriptorS);
+            if (refMethod != null) {
+                break;
+            }
+            i++;
+        }
+        if (refMethod == null) {
+            throw new IllegalArgumentException("Reference method not found");
+        }
+        return DescriptableAncestorTree.of(refMethod, offset + i, false, classes.stream().skip(i + 1).map(tcm -> tcm.methods().toArray(TypedDescriptableMapping[]::new)).toList());
+    }
+
+    public DescriptableAncestorTree methodAncestors(List<Pair<String, String>> refMethodS) {
+        int i = 0;
+        TypedDescriptableMapping refMethod = null;
+        for (TypedClassMapping refClass : classes) {
+            refMethod = refClass.mappedMethod(refMethodS);
             if (refMethod != null) {
                 break;
             }
