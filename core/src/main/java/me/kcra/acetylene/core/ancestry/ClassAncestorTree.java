@@ -65,6 +65,10 @@ public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, i
     }
 
     public DescriptableAncestorTree fieldAncestors(String... refFieldS) {
+        return fieldAncestors(Arrays.asList(refFieldS));
+    }
+
+    public DescriptableAncestorTree fieldAncestors(List<String> refFieldS) {
         int i = 0;
         TypedDescriptableMapping refField = null;
         for (TypedClassMapping refClass : classes) {
