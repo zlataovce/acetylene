@@ -56,7 +56,7 @@ public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identif
     }
 
     public @Nullable TypedDescriptableMapping mappedMethod(Pair<String, String> mapped) {
-        return methods.stream().filter(e -> e.mappings().contains(mapped)).findFirst().orElse(null);
+        return methods.stream().filter(e -> e.mappings().stream().map(Pair::value).anyMatch(p -> p.equals(mapped))).findFirst().orElse(null);
     }
 
     public @Nullable TypedDescriptableMapping mappedMethod(Collection<Pair<String, String>> mapped) {

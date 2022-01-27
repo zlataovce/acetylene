@@ -88,9 +88,16 @@ public class ClassAncestorTreeTest {
             // testing old field lookup
             final ClassAncestorTree ancestorTree3 = ClassAncestorTree.of("net/minecraft/network/protocol/game/ClientboundAddMobPacket", files);
             System.out.println("Classes mapped: " + ancestorTree3.size());
-            final DescriptableAncestorTree result3 = ancestorTree3.fieldAncestors("field_149043_l"); // data watcher
+            final DescriptableAncestorTree result3 = ancestorTree3.fieldAncestors("id", "field_11996", "f_131531_"); // data watcher
             System.out.println("Fields mapped: " + result3.size() + ", offset: " + result3.offset());
             System.out.println("Result: " + result3);
+
+            // testing method lookup
+            final ClassAncestorTree ancestorTree4 = ClassAncestorTree.of("net/minecraft/network/protocol/Packet", files);
+            System.out.println("Classes mapped: " + ancestorTree4.size());
+            final DescriptableAncestorTree result4 = ancestorTree4.methodAncestors("write", "(Lnet/minecraft/network/FriendlyByteBuf;)V");
+            System.out.println("Methods mapped: " + result4.size() + ", offset: " + result4.offset());
+            System.out.println("Result: " + result4);
         }
     }
 }
