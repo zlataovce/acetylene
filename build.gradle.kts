@@ -56,5 +56,16 @@ subprojects {
                 }
             }
         }
+
+        repositories {
+            maven {
+                url = if ((project.version as String).endsWith("-SNAPSHOT")) uri("https://repo.kcra.me/snapshots")
+                    else uri("https://repo.kcra.me/releases")
+                credentials {
+                    username = System.getenv("REPO_USERNAME")
+                    password = System.getenv("REPO_PASSWORD")
+                }
+            }
+        }
     }
 }
