@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "me.kcra.acetylene"
-    version = "0.0.1-SNAPSHOT"
+    version = "0.0.1"
 }
 
 subprojects {
