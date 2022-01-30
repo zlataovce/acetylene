@@ -115,4 +115,44 @@ public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, i
         }
         return DescriptableAncestorTree.of(refMethod, offset + i, false, classes.stream().skip(i + 1).map(tcm -> tcm.methods().toArray(TypedDescriptableMapping[]::new)).toList());
     }
+
+    public @Unmodifiable List<TypedDescriptableMapping> walkFields() {
+        final Set<String> mappingSet = new HashSet<>();
+        final List<TypedDescriptableMapping> fields = new ArrayList<>();
+        for (TypedClassMapping clazz : classes) {
+            fields.addAll(
+                    clazz.fields().stream()
+                            .filter(f -> {
+                                final List<String> mapStr = f.mappings().stream().map(e -> e.value().key()).toList();
+                                final boolean disjoint = Collections.disjoint(mapStr, mappingSet);
+                                if (disjoint) {
+                                    mappingSet.addAll(mapStr);
+                                }
+                                return disjoint;
+                            })
+                            .toList()
+            );
+        }
+        return Collections.unmodifiableList(fields);
+    }
+
+    public @Unmodifiable List<TypedDescriptableMapping> walkMethods() {
+        final Set<String> mappingSet = new HashSet<>();
+        final List<TypedDescriptableMapping> methods = new ArrayList<>();
+        for (TypedClassMapping clazz : classes) {
+            methods.addAll(
+                    clazz.methods().stream()
+                            .filter(m -> {
+                                final List<String> mapStr = m.mappings().stream().map(e -> e.value().key()).toList();
+                                final boolean disjoint = Collections.disjoint(mapStr, mappingSet);
+                                if (disjoint) {
+                                    mappingSet.addAll(mapStr);
+                                }
+                                return disjoint;
+                            })
+                            .toList()
+            );
+        }
+        return Collections.unmodifiableList(methods);
+    }
 }

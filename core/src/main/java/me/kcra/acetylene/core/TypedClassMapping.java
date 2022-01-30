@@ -27,8 +27,24 @@ public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identif
         return String.join(",", mappings.stream().map(Pair::value).toList());
     }
 
+    /**
+     * Gets the non-obfuscated mapping by its type.
+     *
+     * @param type the mapping type
+     * @return the mapping, null if not found
+     */
     public @Nullable String mapped(Identifier type) {
         return mappings.stream().filter(e -> e.key().equals(type)).findFirst().map(Pair::value).orElse(null);
+    }
+
+    /**
+     * Determines if this {@link TypedClassMapping} has the supplied mapping type.
+     *
+     * @param type the mapping type
+     * @return does this class have the supplied mapping type?
+     */
+    public boolean has(Identifier type) {
+        return mappings.stream().anyMatch(e -> e.key().equals(type));
     }
 
     public @Nullable TypedDescriptableMapping field(String original) {
