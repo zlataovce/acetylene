@@ -1,4 +1,7 @@
 # acetylene
+![Maven releases](https://repo.kcra.me/api/badge/latest/releases/me/kcra/acetylene/core)
+![Maven snapshots](https://repo.kcra.me/api/badge/latest/snapshots/me/kcra/acetylene/core)  
+
 A Java library for managing obfuscation mappings.
 
 ## Usage
