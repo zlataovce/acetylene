@@ -4,5 +4,5 @@ repositories {
 
 dependencies {
     api(project(":core"))
-    implementation("net.fabricmc:mapping-io:0.3.0")
+    api("net.fabricmc:mapping-io:0.3.0")
 }

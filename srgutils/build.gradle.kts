@@ -1,4 +1,4 @@
 dependencies {
     api(project(":core"))
-    implementation("net.minecraftforge:srgutils:0.4.11-SNAPSHOT")
+    api("net.minecraftforge:srgutils:0.4.11-SNAPSHOT")
 }

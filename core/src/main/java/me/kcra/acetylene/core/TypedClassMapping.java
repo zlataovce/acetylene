@@ -12,9 +12,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class representing a class mapping consisting of several (non-obfuscated) mappings with the same original (obfuscated) mapping.
- * <p>
+ * Class representing a class mapping consisting of several (non-obfuscated) mappings with the same original (obfuscated) mapping.<br>
  * This is useful for creating {@link me.kcra.acetylene.core.ancestry.ClassAncestorTree}s from several inconsistent mapping types.
+ * <p>
+ * Mappings are stored in the mappings field ({@link #mappings()}) with the following structure:<br>
+ * <strong>[version - mapped]</strong>
  */
 public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identifier, String>> mappings,
                                 @Unmodifiable List<TypedDescriptableMapping> fields,
@@ -47,34 +49,86 @@ public record TypedClassMapping(String original, @Unmodifiable List<Pair<Identif
         return mappings.stream().anyMatch(e -> e.key().equals(type));
     }
 
+    /**
+     * Gets a field mapping by its original (obfuscated) name.
+     *
+     * @param original the original name
+     * @return the field mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping field(String original) {
         return fields.stream().filter(e -> e.original().equals(original)).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a field mapping by its mapped (non-obfuscated) name.
+     *
+     * @param mapped the mapped name
+     * @return the field mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedField(String mapped) {
         return fields.stream().filter(e -> e.mappings().stream().anyMatch(p -> p.value().key().equals(mapped))).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a field mapping by its mapped (non-obfuscated) names.<br>
+     * <strong>At least one name needs to match one of the names in the field mapping for it to be selected.</strong>
+     *
+     * @param mapped the mapped names
+     * @return the field mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedField(String... mapped) {
         return mappedField(Arrays.asList(mapped));
     }
 
+    /**
+     * Gets a field mapping by its mapped (non-obfuscated) names.<br>
+     * <strong>At least one name needs to match one of the names in the field mapping for it to be selected.</strong>
+     *
+     * @param mapped the mapped names
+     * @return the field mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedField(Collection<String> mapped) {
         return fields.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).map(Pair::key).toList(), mapped)).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a method mapping by its original (obfuscated) name and descriptor.
+     *
+     * @param original the original name
+     * @return the method mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping method(String original, String descriptor) {
         return methods.stream().filter(e -> e.original().equals(original) && e.descriptor().equals(descriptor)).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a method mapping by its mapped (non-obfuscated) name and descriptor.
+     *
+     * @param mapped the mapped name
+     * @param mappedDescriptor the mapped descriptor
+     * @return the method mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedMethod(String mapped, String mappedDescriptor) {
         return mappedMethod(Pair.of(mapped, mappedDescriptor));
     }
 
+    /**
+     * Gets a method mapping by its mapped (non-obfuscated) mapping pair.
+     *
+     * @param mapped the mapping pair
+     * @return the method mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedMethod(Pair<String, String> mapped) {
         return methods.stream().filter(e -> e.mappings().stream().map(Pair::value).anyMatch(p -> p.equals(mapped))).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a method mapping by its mapped (non-obfuscated) mapping pairs.<br>
+     * <strong>At least one name and descriptor needs to match one of the names and descriptors in the method mapping for it to be selected.</strong>
+     *
+     * @param mapped the mapping pairs
+     * @return the method mapping, null if not found
+     */
     public @Nullable TypedDescriptableMapping mappedMethod(Collection<Pair<String, String>> mapped) {
         return methods.stream().filter(e -> !Collections.disjoint(e.mappings().stream().map(Pair::value).toList(), mapped)).findFirst().orElse(null);
     }
