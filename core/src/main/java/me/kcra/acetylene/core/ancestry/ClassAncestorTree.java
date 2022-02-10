@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * A record representing an ancestor tree of a class name, traced using multiple inconsistent mapping types.
+ */
 public record ClassAncestorTree(@Unmodifiable List<TypedClassMapping> classes, int offset) {
     public static ClassAncestorTree of(String refClass, TypedMappingFile... files) {
         return of(Arrays.asList(files), List.of(refClass));
