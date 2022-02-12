@@ -1,9 +1,5 @@
 package me.kcra.acetylene.core.utils;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import me.kcra.acetylene.core.utils.jackson.IdentifierDeserializer;
-import me.kcra.acetylene.core.utils.jackson.IdentifierSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -12,8 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * A generic immutable identifier.
  */
-@JsonSerialize(using = IdentifierSerializer.class)
-@JsonDeserialize(using = IdentifierDeserializer.class)
 public interface Identifier {
     /**
      * A cache for {@link Identifier} instances based on their names.

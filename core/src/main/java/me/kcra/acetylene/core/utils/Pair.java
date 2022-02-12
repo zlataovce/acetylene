@@ -1,7 +1,5 @@
 package me.kcra.acetylene.core.utils;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
@@ -20,7 +18,6 @@ public interface Pair<K, V> {
      *
      * @return the key
      */
-    @JsonGetter
     @UnknownNullability
     K key();
     /**
@@ -28,7 +25,6 @@ public interface Pair<K, V> {
      *
      * @return the value
      */
-    @JsonGetter
     @UnknownNullability
     V value();
 
@@ -41,7 +37,6 @@ public interface Pair<K, V> {
      * @param <R> the value type
      * @return the new pair
      */
-    @JsonCreator
     static <L, R> Pair<L, R> of(L key, R value) {
         return new Pair<>() {
             @Override
