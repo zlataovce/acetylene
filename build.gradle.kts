@@ -1,5 +1,6 @@
 plugins {
     id("io.freefair.lombok") version "6.3.0" apply(false)
+    id("org.cadixdev.licenser") version "0.6.1"
     id("maven-publish")
     id("java-library")
 }
@@ -10,9 +11,12 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "java-library")
-    apply(plugin = "maven-publish")
-    apply(plugin = "io.freefair.lombok")
+    apply {
+        plugin("java-library")
+        plugin("maven-publish")
+        plugin("io.freefair.lombok")
+        plugin("org.cadixdev.licenser")
+    }
 
     repositories {
         mavenCentral()
@@ -25,6 +29,10 @@ subprojects {
 
     tasks.withType<Jar> {
         archiveBaseName.set("${rootProject.name}-${project.name}")
+    }
+
+    license {
+        header(rootProject.file("license_header.txt"))
     }
 
     configure<PublishingExtension> {
